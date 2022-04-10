@@ -254,11 +254,12 @@ void GlowPatterns::loopFadeOut()
  */
 void GlowPatterns::startFadeChange()
 {
-  if (this->_currentNumber != this->_nextNumber) {
-    CathodeControl::glow(this->_currentNumber, nxyi2c_dots_none, false);
+  CathodeControl::glowAll(false);
+  if (this->_currentNumber == this->_nextNumber) {
+    CathodeControl::glow(this->_currentNumber, nxyi2c_dots_none, true);
   }
-  if (this->_currentDot != this->_nextDot) {
-    CathodeControl::glow(nxyi2c_nums_none, this->_currentDot, false);
+  if (this->_currentDot == this->_nextDot) {
+    CathodeControl::glow(nxyi2c_nums_none, this->_currentDot, true);
   }
 }
 
