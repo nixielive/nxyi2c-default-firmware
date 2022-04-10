@@ -254,7 +254,12 @@ void GlowPatterns::loopFadeOut()
  */
 void GlowPatterns::startFadeChange()
 {
-  CathodeControl::glowAll(false);
+  if (this->_currentNumber != this->_nextNumber) {
+    CathodeControl::glow(this->_currentNumber, nxyi2c_dots_none, false);
+  }
+  if (this->_currentDot != this->_nextDot) {
+    CathodeControl::glow(nxyi2c_nums_none, this->_currentDot, false);
+  }
 }
 
 /**
@@ -264,12 +269,27 @@ void GlowPatterns::loopFadeChange()
 {
   if (this->_currentSteps < NXYI2C_PTN_FADE_STEPS)
   {
+    signed short currentNumber = this->_currentNumber;
+    signed short nextNumber = this->_nextNumber;
+    signed short currentDot = this->_currentDot;
+    signed short nextDot = this->_nextDot;
+
     this->updateGlowRatios();
-    CathodeControl::glow(this->_currentNumber, this->_currentDot, true);
-    CathodeControl::glow(this->_nextNumber, this->_nextDot, false);
+    if (this->_currentNumber == this->_nextNumber) {
+      // Don't operate number
+      currentNumber = nxyi2c_nums_none;
+      nextNumber = nxyi2c_nums_none;
+    }
+    if (this->_currentDot == this->_nextDot) {
+      // Don't operate dots
+      currentDot = nxyi2c_dots_none;
+      nextDot = nxyi2c_dots_none;
+    }
+    CathodeControl::glow(currentNumber, currentDot, true);
+    CathodeControl::glow(nextNumber, nextDot, false);
     delayMicroseconds(this->_currentUs);
-    CathodeControl::glow(this->_currentNumber, this->_currentDot, false);
-    CathodeControl::glow(this->_nextNumber, this->_nextDot, true);
+    CathodeControl::glow(currentNumber, currentDot, false);
+    CathodeControl::glow(nextNumber, nextDot, true);
     delayMicroseconds(this->_nextUs);
     this->_currentSteps++;
   }
@@ -292,7 +312,10 @@ void GlowPatterns::startPataPata()
   CathodeControl::glowAll(false);
   if (this->_currentNumber != this->_nextNumber)
   {
-    this->_patapataStep = 1;
+    this->_patapataStep = 1;  // NOTE : increment rotate
+    
+    # if 0
+    // NOTE : nearest
     if (this->_currentNumber > this->_nextNumber)
     {
       if (this->_nextNumber + 10 - this->_currentNumber < this->_currentNumber - this->_nextNumber)
@@ -319,6 +342,7 @@ void GlowPatterns::startPataPata()
         this->_patapataStep = 1;
       }
     }
+    #endif
   }
   else
   {
